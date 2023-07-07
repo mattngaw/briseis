@@ -1,7 +1,7 @@
 // Architectural Constants
 pub const NUM_GPRS: usize = 32;
 pub const STACK_SIZE: usize = 4;
-
+pub const ROM_SIZE: usize = 256;
 
 // Words
 pub const WORD_WIDTH: usize = 4;
@@ -27,4 +27,55 @@ pub const ADDR_MASK: u32 = (1 << ADDR_WIDTH) - 1;
 
 pub fn addr_to_hex_string(addr: u32) -> String {
     format!("{:#05x}", addr)
+}
+
+pub enum Instruction {
+    //
+    Nop,
+    Src,
+    Fin,
+    Jin,
+    Inc,
+    Add,
+    Sub,
+    Ld,
+    Xch,
+    Bbl,
+    Ldm,
+    Wrm,
+    Wmp,
+    Wrr,
+    Wr0,
+    Wr1,
+    Wr2,
+    Wr3,
+    Sbm,
+    Rdm,
+    Rdr, 
+    Adm,
+    Rd0,
+    Rd1,
+    Rd2,
+    Rd3,
+    Clb,
+    Clc,
+    Iac,
+    Cmc,
+    Cma,
+    Ral,
+    Rar,
+    Tcc,
+    Dac,
+    Tcs,
+    Stc,
+    Daa,
+    Kbp,
+    Dcl,
+
+    // 
+    Jcn,
+    Fim,
+    Jun,
+    Jms,
+    Isz
 }
