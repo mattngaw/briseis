@@ -12,6 +12,9 @@ pub struct Stack {
     ptr: usize,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct StackUnderflowError;
+
 impl Stack {
     const CAPACITY: usize = STACK_SIZE - 1;
 
@@ -43,13 +46,13 @@ impl Stack {
         no_overwrite
     }
 
-    pub fn pop(&mut self) -> Result<u32, ()> {
+    pub fn pop(&mut self) -> Result<u32, StackUnderflowError> {
         if self.len == 0 {
-            return Err(())
+            return Err(StackUnderflowError)
         }
         let addr = self.data[(self.ptr - 1) % STACK_SIZE];
         self.data[(self.ptr - 1) % STACK_SIZE] = self.data[self.ptr];
-        self.ptr = self.ptr - 1 % STACK_SIZE;
+        self.ptr -= 1 % STACK_SIZE;
         self.len -= 1;
         Ok(addr & ADDR_MASK)
     }
@@ -58,16 +61,16 @@ impl Stack {
 impl std::fmt::Display for Stack {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut display = String::new();
-        display.push_str("     STACK  \n");
-        display.push_str("   +-------+\n");
+        display.push_str("  STACK\n");
+        display.push_str("+-------+\n");
         for (i, addr) in self.data.into_iter().rev().enumerate() {
             let index = Self::CAPACITY - i;
+            display.push_str(&format!("| {} |", addr_to_hex_string(addr)));
             display.push_str({
-                if index == self.ptr { "PC " }
-                else { "   " }
+                if index == self.ptr { " PC\n" }
+                else { "\n" }
             });
-            display.push_str(&format!("| {} |\n", addr_to_hex_string(addr)));
-            display.push_str("   +-------+\n");
+            display.push_str("+-------+\n");
         }
         write!(f, "{}", display)
     }
@@ -100,7 +103,7 @@ mod tests {
         assert_eq!(stack.pop(), Ok(0x789));
         assert_eq!(stack.pop(), Ok(0x456));
         assert_eq!(stack.pop(), Ok(0x123));
-        assert_eq!(stack.pop(), Err(()));
+        assert_eq!(stack.pop(), Err(StackUnderflowError));
     }
 
     #[test]
@@ -120,48 +123,48 @@ mod tests {
         let mut stack = Stack::new();
         assert_eq!(
             &format!("{}", stack),
-            "     STACK  \n   \
-               +-------+\n   \
-               | 0x000 |\n   \
-               +-------+\n   \
-               | 0x000 |\n   \
-               +-------+\n   \
-               | 0x000 |\n   \
-               +-------+\n\
-            PC | 0x000 |\n   \
-               +-------+\n\
+            "  STACK\n\
+             +-------+\n\
+             | 0x000 |\n\
+             +-------+\n\
+             | 0x000 |\n\
+             +-------+\n\
+             | 0x000 |\n\
+             +-------+\n\
+             | 0x000 | PC\n\
+             +-------+\n\
             "
         );
 
         stack.push(0x123);
         assert_eq!(
             &format!("{}", stack),
-            "     STACK  \n   \
-               +-------+\n   \
-               | 0x000 |\n   \
-               +-------+\n   \
-               | 0x000 |\n   \
-               +-------+\n\
-            PC | 0x000 |\n   \
-               +-------+\n   \
-               | 0x123 |\n   \
-               +-------+\n\
+            "  STACK\n\
+             +-------+\n\
+             | 0x000 |\n\
+             +-------+\n\
+             | 0x000 |\n\
+             +-------+\n\
+             | 0x000 | PC\n\
+             +-------+\n\
+             | 0x123 |\n\
+             +-------+\n\
             "
         );
         
         stack.set_pc(0x999);
         assert_eq!(
             &format!("{}", stack),
-            "     STACK  \n   \
-               +-------+\n   \
-               | 0x000 |\n   \
-               +-------+\n   \
-               | 0x000 |\n   \
-               +-------+\n\
-            PC | 0x999 |\n   \
-               +-------+\n   \
-               | 0x123 |\n   \
-               +-------+\n\
+            "  STACK\n\
+             +-------+\n\
+             | 0x000 |\n\
+             +-------+\n\
+             | 0x000 |\n\
+             +-------+\n\
+             | 0x999 | PC\n\
+             +-------+\n\
+             | 0x123 |\n\
+             +-------+\n\
             "
         );
 

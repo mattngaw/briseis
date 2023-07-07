@@ -59,5 +59,12 @@ mod tests {
         reg.store(0xa);
         assert_eq!(reg.0, 0xa);
     }
+    
+    #[test]
+    fn display() {
+        let mut reg = Reg::<4>::new();
+        reg.store(0xa);
+        assert_eq!(&format!("{}", reg), "0xa");
+    }
 
 }
